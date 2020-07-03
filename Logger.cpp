@@ -13,27 +13,53 @@ _LIT8(KLineBreak, "\r\n");
 _LIT8(KTab, "\t");
 
 
-// Set initial values for static properties
+/*// Set initial values for static properties
 TBool Logger::iIsConfigured = EFalse;
-RFile Logger::iFile = RFile();
+RFile Logger::iFile = RFile();*/
 
 
-Logger::Logger()
+CLogger::CLogger(const RFile &aFile) :
+		iFile(aFile)/*,
+		iIsConfigured(ETrue)*/
 	{
-	// No implemenation needed
 	}
 
-void Logger::Configure(const RFile &aFile)
+CLogger::~CLogger()
+	{
+	if (this == LoggerStatic::iLogger)
+		LoggerStatic::SetLogger(NULL);
+	}
+
+CLogger* CLogger::NewLC(const RFile &aFile)
+	{
+	CLogger* self = new (ELeave) CLogger(aFile);
+	CleanupStack::PushL(self);
+	self->ConstructL();
+	return self;
+	}
+
+CLogger* CLogger::NewL(const RFile &aFile)
+	{
+	CLogger* self = CLogger::NewLC(aFile);
+	CleanupStack::Pop(); // self;
+	return self;
+	}
+
+void CLogger::ConstructL()
+	{
+	}
+
+/*void CLogger::Configure(const RFile &aFile)
 	{
 	iFile = aFile;
 	iIsConfigured = ETrue;
-	}
+	}*/
 
-void Logger::Write(const TDesC8 &aModule, const TDesC8 &aDes)
+void CLogger::Write(const TDesC8 &aModule, const TDesC8 &aDes)
 	{
-	// Deny write to not configured logger
+	/*// Deny write to not configured logger
 	if (!iIsConfigured)
-		return;
+		return;*/
 	
 	// Strings
 	_LIT(KTimeFormat, "%H:%T:%S.%*C3");
@@ -63,28 +89,66 @@ void Logger::Write(const TDesC8 &aModule, const TDesC8 &aDes)
 	iFile.Write(KLineBreak);
 	}
 
-void Logger::WriteFormat(const TDesC8 &aModule, TRefByValue<const TDesC8> aFmt, ...)
+void CLogger::WriteFormat(const TDesC8 &aModule, TRefByValue<const TDesC8> aFmt, ...)
+	{
+    VA_LIST list;
+    VA_START(list, aFmt);
+    WriteFormatList(aModule, aFmt, list);
+    
+    // VA_END(list); // вроде не нужно
+	}
+
+void CLogger::WriteFormatList(const TDesC8 &aModule, /*TRefByValue<const TDesC8> aFmt*/ const TDesC8 &aFmt, VA_LIST aList)
 	{
 	// ToDo: Add format for date and time
 	
-	// Deny write to not configured logger
+	/*// Deny write to not configured logger
 	if (!iIsConfigured)
-		return;
+		return;*/
 
-	VA_LIST list;
-	VA_START(list, aFmt);
 	
 	TBuf8<256> buff;
 	buff.Zero();
-	buff.FormatList(aFmt, list);
-	VA_END(list);
+	buff.FormatList(aFmt, aList);
 	
 	Write(aModule, buff);
 	}
 
-//void Logger::WriteEmptyLine()
+//void CLogger::WriteEmptyLine()
 //	{
 //	iFile.Write(KLineBreak);
 //	}
+
+
+CLogger* LoggerStatic::iLogger = NULL;
+
+/*static*/ void LoggerStatic::SetLogger(CLogger* aLogger)
+	{
+	iLogger = aLogger;
+	}
+
+//static LoggerStatic::Logger* Instance()
+//	{
+//    if (!iInstance)           
+//    	iInstance = Logger::NewL();
+//    return iInstance;
+//	}
+
+//static void LoggerStatic::Configure(const RFile &aFile)
+//	{
+//	}
+
+/*static*/ void LoggerStatic::WriteFormat(const TDesC8 &aModule, TRefByValue<const TDesC8> aFmt, ...)
+	{
+	// Deny write to not configured logger
+	if (!iLogger)
+		return;
+	
+	VA_LIST list;
+	VA_START(list, aFmt);
+	iLogger->WriteFormatList(aModule, aFmt, list);
+	VA_END(list);
+	}
+
 
 #endif
