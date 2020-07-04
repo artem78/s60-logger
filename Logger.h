@@ -75,7 +75,7 @@ public:
 	static void SetLogger(CLogger* aLogger);
 	//static CLogger* Logger();
 	static void WriteFormat(const TDesC8 &aModule, TRefByValue<const TDesC8> aFmt, ...);
-	friend CLogger;
+	friend class CLogger;
 	};
 
 
