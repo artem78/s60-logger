@@ -17,6 +17,7 @@
 #include <e32std.h>
 #include <e32base.h>
 #include <f32file.h>
+#include <s32file.h>
 #include "LoggingDefs.h"
 
 
@@ -43,8 +44,8 @@ class CLogger : public CBase
 	{
 public:
 	~CLogger();
-	static CLogger* NewL(const RFile &aFile);
-	static CLogger* NewLC(const RFile &aFile);
+	static CLogger* NewL(/*const*/ RFile &aFile);
+	static CLogger* NewLC(/*const*/ RFile &aFile);
 	
 	//static void Configure(const RFile &aFile);
 	//static void Configure(const TDesC aFileName);
@@ -52,13 +53,15 @@ public:
 	/*static*/ void WriteFormat(const TDesC8 &aModule, TRefByValue<const TDesC8> aFmt, ...);
 	/*static*/ void WriteFormatList(const TDesC8 &aModule, /*TRefByValue<const TDesC8> aFmt*/ const TDesC8 &aFmt, VA_LIST aList);
 	//static void WriteEmptyLine();
+	void WriteToFile/*L*/(const TDesC8 &aDes);
 	
 private:
-	CLogger(const RFile &aFile);
+	CLogger(/*const*/ RFile &aFile);
 	void ConstructL();
 	
 	//TBool iIsConfigured;
-	RFile iFile;
+	//RFile iFile;
+	RFileBuf iFileBuf;
 	};
 
 

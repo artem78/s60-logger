@@ -18,19 +18,24 @@ TBool Logger::iIsConfigured = EFalse;
 RFile Logger::iFile = RFile();*/
 
 
-CLogger::CLogger(const RFile &aFile) :
-		iFile(aFile)/*,
+CLogger::CLogger(/*const*/ RFile &aFile) //:
+		/*iFile(aFile)*//*,
 		iIsConfigured(ETrue)*/
 	{
+	//iFileBuf = RFileBuf(); // Default buffer size is 4Kb
+	iFileBuf.Attach(aFile, 0);
 	}
 
 CLogger::~CLogger()
 	{
+	iFileBuf.Synch/*L*/();
+	iFileBuf.Close();
+	
 	if (this == LoggerStatic::iLogger)
 		LoggerStatic::SetLogger(NULL);
 	}
 
-CLogger* CLogger::NewLC(const RFile &aFile)
+CLogger* CLogger::NewLC(/*const*/ RFile &aFile)
 	{
 	CLogger* self = new (ELeave) CLogger(aFile);
 	CleanupStack::PushL(self);
@@ -38,7 +43,7 @@ CLogger* CLogger::NewLC(const RFile &aFile)
 	return self;
 	}
 
-CLogger* CLogger::NewL(const RFile &aFile)
+CLogger* CLogger::NewL(/*const*/ RFile &aFile)
 	{
 	CLogger* self = CLogger::NewLC(aFile);
 	CleanupStack::Pop(); // self;
@@ -75,18 +80,18 @@ void CLogger::Write(const TDesC8 &aModule, const TDesC8 &aDes)
 	
 	TBuf8<20> timeBuff8;
 	timeBuff8.Copy(timeBuff);
-	iFile.Write(timeBuff8);
+	WriteToFile(timeBuff8);
 
 	// Print module/class/function name
-	iFile.Write(KTab);
-	iFile.Write(KOpeningSquareBracket);
-	iFile.Write(aModule);
-	iFile.Write(KClosingSquareBracket);
-	iFile.Write(KThreeSpaces);
+	WriteToFile(KTab);
+	WriteToFile(KOpeningSquareBracket);
+	WriteToFile(aModule);
+	WriteToFile(KClosingSquareBracket);
+	WriteToFile(KThreeSpaces);
 	
 	// Print message
-	iFile.Write(aDes);
-	iFile.Write(KLineBreak);
+	WriteToFile(aDes);
+	WriteToFile(KLineBreak);
 	}
 
 void CLogger::WriteFormat(const TDesC8 &aModule, TRefByValue<const TDesC8> aFmt, ...)
@@ -118,6 +123,18 @@ void CLogger::WriteFormatList(const TDesC8 &aModule, /*TRefByValue<const TDesC8>
 //	{
 //	iFile.Write(KLineBreak);
 //	}
+
+void CLogger::WriteToFile/*L*/(const TDesC8 &aDes)
+	{
+	/*// Deny write to not configured logger
+	if (!iIsConfigured)
+		return;*/
+	
+	TRequestStatus stat;
+	iFileBuf.Write/*L*/(aDes, stat);
+	User::WaitForRequest(stat);
+	//iFileBuff.Synch/*L*/();
+	}
 
 
 CLogger* LoggerStatic::iLogger = NULL;
