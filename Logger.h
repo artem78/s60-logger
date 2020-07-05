@@ -2,12 +2,19 @@
  * Logger.h
  *
  *  Created on: 01.09.2019
- *      Author: user
- *      Description: Simple module for writing log to file. Do not call class methods
- *      directly, use macroses instead. Before using it`s need to set output file by
- *      LOG_CONFIGURE macros. For enable logging you need to define constant:
+ *      Author: artem78
+ *      Description: Simple module for writing log to file.
+ *      
+ *      Usage:
+ *      First you need to create instance of CLogger. After that set this logger
+ *      as default calling LoggerStatic::SetLogger() static method. Use LOG
+ *      macros from any place for write message to the log. If no logger set up,
+ *      nothing was doing. Prefer to use LOG macros instead of directly call
+ *      LoggerStatic::WriteFormat() method. Preprocessor constant LOGGING_ENABLED
+ *      globally enabled or disabled logging functionality at compile time.
+ *      For enabling logging add:
  *      	#define LOGGING_ENABLED 1
- *		
+ *
  */
 
 #ifndef LOGGER_H_
@@ -31,56 +38,60 @@
 // ToDo: Write to log additinal info: __FILE__, __LINE__, etc...
 // ToDo: Add levels (debug, error, info, warning, etc...)
 // ToDo: Write 16bit descriptors
+// ToDo: Allow to create logger by filename and file server
+// ToDo: Add formatting of date and time in message (ex.: %date, %time, %datetime)
 
 #if LOGGING_ENABLED
-//#define LOG_CONFIGURE(aFile) LoggerStatic::Configure(aFile)
-//#define LOG_CONFIGURE(aFileName)
-//#define LOG(aMsg, ...) Logger::WriteFormat(aMsg, ## __VA_ARGS__);
 #define LOG(aMsg, anArgs...) LoggerStatic::WriteFormat(_L8(__PRETTY_FUNCTION__), aMsg, ##anArgs);
 // https://ru.stackoverflow.com/questions/1026888/%d0%a1%d1%83%d1%89%d0%b5%d1%81%d1%82%d0%b2%d1%83%d0%b5%d1%82-%d0%bb%d0%b8-%d0%b2-c-%d0%bc%d0%b0%d0%ba%d1%80%d0%be%d1%81-%d1%81-%d0%b8%d0%bc%d0%b5%d0%bd%d0%b5%d0%bc-%d0%ba%d0%bb%d0%b0%d1%81%d1%81%d0%b0?noredirect=1#comment1747251_1026888
 
 
+/*
+ * Main class for logging
+ */
 class CLogger : public CBase
 	{
 public:
 	~CLogger();
-	static CLogger* NewL(/*const*/ RFile &aFile);
-	static CLogger* NewLC(/*const*/ RFile &aFile);
-	
-	//static void Configure(const RFile &aFile);
-	//static void Configure(const TDesC aFileName);
-	/*static*/ void Write(const TDesC8 &aModule, const TDesC8 &aDes);
-	/*static*/ void WriteFormat(const TDesC8 &aModule, TRefByValue<const TDesC8> aFmt, ...);
-	/*static*/ void WriteFormatList(const TDesC8 &aModule, /*TRefByValue<const TDesC8> aFmt*/ const TDesC8 &aFmt, VA_LIST aList);
+	static CLogger* NewL(RFile &aFile);
+	static CLogger* NewLC(RFile &aFile);
+
+//public:
+private:
+	void Write(const TDesC8 &aModule, const TDesC8 &aDes);
+	void WriteFormat(const TDesC8 &aModule, TRefByValue<const TDesC8> aFmt, ...);
+	void WriteFormatList(const TDesC8 &aModule, const TDesC8 &aFmt, VA_LIST aList);
 	//static void WriteEmptyLine();
 	void WriteToFile/*L*/(const TDesC8 &aDes);
 	
 private:
-	CLogger(/*const*/ RFile &aFile);
+	CLogger(RFile &aFile);
 	void ConstructL();
 	
-	//TBool iIsConfigured;
-	//RFile iFile;
 	RFileBuf iFileBuf;
+	
+	friend class LoggerStatic;
 	};
 
 
+/*
+ * Static class for providing access to logger from everywhere. Set current logger
+ * with LoggerStatic::SetLogger() method and than every call to LOG macros will be
+ * send to this logger.
+ */
 class LoggerStatic
 	{
 private:
 	static CLogger* iLogger;
-	//static Logger* Instance();
 public:
-	//static void Configure(const RFile &aFile);
 	static void SetLogger(CLogger* aLogger);
-	//static CLogger* Logger();
 	static void WriteFormat(const TDesC8 &aModule, TRefByValue<const TDesC8> aFmt, ...);
+	
 	friend class CLogger;
 	};
 
 
 #else
-//#define LOG_CONFIGURE(aFile)
 #define LOG(aMsg, anArgs...)
 #endif
 
