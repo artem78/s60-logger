@@ -7,12 +7,12 @@
  *      
  *      Usage:
  *      First you need to create instance of CLogger. After that set this logger
- *      as default calling LoggerStatic::SetLogger() static method. Use LOG
- *      macros from any place for write message to the log. If no logger set up,
- *      nothing was doing. Prefer to use LOG macros instead of directly call
- *      LoggerStatic::WriteFormat() method. Preprocessor constant LOGGING_ENABLED
- *      globally enabled or disabled logging functionality at compile time.
- *      For enabling logging add:
+ *      as default calling LoggerStatic::SetLogger() static method. Use LOG, DEBUG,
+ *      INFO, WARNING or ERROR macros from any place of your code for write messages
+ *      to the log. If no logger has been set up, nothing will happen. Prefer to use
+ *      macroses instead of directly call LoggerStatic::WriteFormat() method.
+ *      Preprocessor constant LOGGING_ENABLED globally enables or disables logging
+ *      functionality at compile time. For turn on logging add:
  *      	#define LOGGING_ENABLED 1
  *
  */
@@ -92,8 +92,10 @@ private:
 
 /*
  * Static class for providing access to logger from everywhere. Set current logger
- * with LoggerStatic::SetLogger() method and than every call to LOG macros will be
- * send to this logger.
+ * with LoggerStatic::SetLogger() method and than every call to logging macroses
+ * will be send to this logger. When logger destructor runs, it automatically disables
+ * itself in LoggerStatic and future calls to LOG, DEBUG, INFO, ERROR or WARNING
+ * will cause no action.
  */
 class LoggerStatic
 	{
