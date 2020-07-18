@@ -73,11 +73,11 @@ public:
 	static CLogger* NewLC(RFile &aFile, TUint aLoggingLevels = ELevelAll);
 
 private:
-	void Write(const TDesC8 &aModule, const TDesC8 &aDes, TLoggingLevel aLoggingLevel = ELevelUnknown);
-	void WriteFormat(const TDesC8 &aModule, TRefByValue<const TDesC8> aFmt, ...);
-	void WriteFormatList(const TDesC8 &aModule, const TDesC8 &aFmt, VA_LIST aList, TLoggingLevel aLoggingLevel = ELevelUnknown);
+	void WriteL(const TDesC8 &aModule, const TDesC8 &aDes, TLoggingLevel aLoggingLevel = ELevelUnknown);
+	void WriteFormatL(const TDesC8 &aModule, TRefByValue<const TDesC8> aFmt, ...);
+	void WriteFormatListL(const TDesC8 &aModule, const TDesC8 &aFmt, VA_LIST aList, TLoggingLevel aLoggingLevel = ELevelUnknown);
 	//static void WriteEmptyLine();
-	void WriteToFile/*L*/(const TDesC8 &aDes);
+	void WriteToFileL(const TDesC8 &aDes);
 	
 private:
 	CLogger(RFile &aFile, TUint aLoggingLevels);

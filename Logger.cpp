@@ -50,7 +50,7 @@ void CLogger::ConstructL()
 	{
 	}
 
-void CLogger::Write(const TDesC8 &aModule, const TDesC8 &aDes, TLoggingLevel aLoggingLevel)
+void CLogger::WriteL(const TDesC8 &aModule, const TDesC8 &aDes, TLoggingLevel aLoggingLevel)
 	{
 	// Check reporting level
 	if (aLoggingLevel != ELevelUnknown && !(aLoggingLevel & iLoggingLevels))
@@ -77,68 +77,69 @@ void CLogger::Write(const TDesC8 &aModule, const TDesC8 &aDes, TLoggingLevel aLo
 	
 	TBuf8<20> timeBuff8;
 	timeBuff8.Copy(timeBuff);
-	WriteToFile(timeBuff8);
+	WriteToFileL(timeBuff8);
 	
 	// Print message level
 	if (aLoggingLevel != ELevelUnknown)
 		{
-		WriteToFile(KTab);
-		WriteToFile(KOpeningBracket);
+		WriteToFileL(KTab);
+		WriteToFileL(KOpeningBracket);
 		
 		if (aLoggingLevel & ELevelDebug)
-			WriteToFile(KDebugText);
+			WriteToFileL(KDebugText);
 		else if (aLoggingLevel & ELevelInfo)
-			WriteToFile(KInfoText);
+			WriteToFileL(KInfoText);
 		else if (aLoggingLevel & ELevelWarning)
-			WriteToFile(KWarningText);
+			WriteToFileL(KWarningText);
 		else if (aLoggingLevel & ELevelError)
-			WriteToFile(KErrorText);
+			WriteToFileL(KErrorText);
 		
-		WriteToFile(KClosingBracket);
+		WriteToFileL(KClosingBracket);
 		}
 
 	// Print module/class/function name
-	WriteToFile(KTab);
-	WriteToFile(KOpeningSquareBracket);
-	WriteToFile(aModule);
-	WriteToFile(KClosingSquareBracket);
-	WriteToFile(KThreeSpaces);
+	WriteToFileL(KTab);
+	WriteToFileL(KOpeningSquareBracket);
+	WriteToFileL(aModule);
+	WriteToFileL(KClosingSquareBracket);
+	WriteToFileL(KThreeSpaces);
 	
 	// Print message
-	WriteToFile(aDes);
-	WriteToFile(KLineBreak);
+	WriteToFileL(aDes);
+	WriteToFileL(KLineBreak);
 	}
 
-void CLogger::WriteFormat(const TDesC8 &aModule, TRefByValue<const TDesC8> aFmt, ...)
+void CLogger::WriteFormatL(const TDesC8 &aModule, TRefByValue<const TDesC8> aFmt, ...)
 	{
 	VA_LIST list;
 	VA_START(list, aFmt);
-	WriteFormatList(aModule, aFmt, list);
+	WriteFormatListL(aModule, aFmt, list);
 	// VA_END(list); // As I understand it, this is not necessary
 	}
 
-void CLogger::WriteFormatList(const TDesC8 &aModule, const TDesC8 &aFmt, VA_LIST aList, TLoggingLevel aLoggingLevel)
+void CLogger::WriteFormatListL(const TDesC8 &aModule, const TDesC8 &aFmt, VA_LIST aList, TLoggingLevel aLoggingLevel)
 	{
 	const TInt KDefaultBufferSize = 4 * KKilo; // 4Kb
 	
 	RBuf8 buff;
-	buff.Create(KDefaultBufferSize);
+	buff.CreateL(KDefaultBufferSize);
+	buff.CleanupClosePushL();
 	buff.FormatList(aFmt, aList);
 	
-	Write(aModule, buff, aLoggingLevel);
+	WriteL(aModule, buff, aLoggingLevel);
 	
-	buff.Close();
+	CleanupStack::PopAndDestroy(&buff);
 	}
 
 //void CLogger::WriteEmptyLine()
 //	{
-//	iFile.Write(KLineBreak);
+//	iFile.WriteL(KLineBreak);
 //	}
 
-void CLogger::WriteToFile/*L*/(const TDesC8 &aDes)
+void CLogger::WriteToFileL(const TDesC8 &aDes)
 	{
 	TRequestStatus stat;
-	iFileBuf.Write/*L*/(aDes, stat);
+	iFileBuf.WriteL(aDes, stat);
 	User::WaitForRequest(stat);
 	//iFileBuff.Synch/*L*/();
 	}
@@ -162,7 +163,7 @@ void LoggerStatic::WriteFormat(CLogger::TLoggingLevel aLoggingLevel,
 	
 	VA_LIST list;
 	VA_START(list, aFmt);
-	iLogger->WriteFormatList(aModule, aFmt, list, aLoggingLevel);
+	TRAP_IGNORE(iLogger->WriteFormatListL(aModule, aFmt, list, aLoggingLevel));
 	VA_END(list);
 	}
 
