@@ -119,11 +119,15 @@ void CLogger::WriteFormat(const TDesC8 &aModule, TRefByValue<const TDesC8> aFmt,
 
 void CLogger::WriteFormatList(const TDesC8 &aModule, const TDesC8 &aFmt, VA_LIST aList, TLoggingLevel aLoggingLevel)
 	{
-	TBuf8<256> buff; // ToDo: Make as RBuf with bigger size
-	buff.Zero();
+	const TInt KDefaultBufferSize = 4 * KKilo; // 4Kb
+	
+	RBuf8 buff;
+	buff.Create(KDefaultBufferSize);
 	buff.FormatList(aFmt, aList);
 	
 	Write(aModule, buff, aLoggingLevel);
+	
+	buff.Close();
 	}
 
 //void CLogger::WriteEmptyLine()
