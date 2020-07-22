@@ -7,18 +7,21 @@ CLogger *logger = CLogger::NewL(file, CLogger::ELevelAll & ~CLogger::ELevelDebug
 CleanupStack::PushL(logger);
 LoggerStatic::SetLogger(logger);
 
-LOG(_L8("Simple message (uncategorized)"));
-DEBUG(_L8("This is debug message")); // This kind of message disabled in logger settings
-INFO(_L8("This is info message"));
-WARNING(_L8("This is warning message"));
+// You may use both 16 or 8-bit descriptors
+LOG(_L16("Simple message in 16bit descriptor (uncategorized)"));
+// or
+LOG(_L8("Simple message in 8bit descriptor (uncategorized)"));
+
+DEBUG(_L("This is debug message")); // This kind of message disabled in logger settings
+INFO(_L("This is info message"));
+WARNING(_L("This is warning message"));
 _LIT8(KErrTxt, "Not Found");
-ERROR(_L8("This is error message with code: %d (%S)"), 404, &KErrTxt);
+ERROR(_L("This is error message with code: %d (%S)"), 404, &KErrTxt);
 
 CleanupStack::PopAndDestroy(logger);
 
-LOG(_L8("Logger has been destroyed and this message didn`t be included to the log file :("));
+LOG(_L("Logger has been destroyed and this message didn`t be included to the log file :("));
 ```
 
 ## Limitations
-* Only 8-bit descriptors allowed
 * Max strings length (with formatting) - 4 Kb

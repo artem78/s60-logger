@@ -46,6 +46,7 @@
 #define INFO(aMsg, anArgs...)		LoggerStatic::WriteFormat(CLogger::ELevelInfo,		_L8(__PRETTY_FUNCTION__), aMsg, ##anArgs);
 #define WARNING(aMsg, anArgs...)	LoggerStatic::WriteFormat(CLogger::ELevelWarning,	_L8(__PRETTY_FUNCTION__), aMsg, ##anArgs);
 #define ERROR(aMsg, anArgs...)		LoggerStatic::WriteFormat(CLogger::ELevelError,		_L8(__PRETTY_FUNCTION__), aMsg, ##anArgs);
+// We can`t use _L16(__PRETTY_FUNCTION__), only 8bit - https://www.cyberforum.ru/cpp-beginners/thread2503039.html
 // https://ru.stackoverflow.com/questions/1026888/%d0%a1%d1%83%d1%89%d0%b5%d1%81%d1%82%d0%b2%d1%83%d0%b5%d1%82-%d0%bb%d0%b8-%d0%b2-c-%d0%bc%d0%b0%d0%ba%d1%80%d0%be%d1%81-%d1%81-%d0%b8%d0%bc%d0%b5%d0%bd%d0%b5%d0%bc-%d0%ba%d0%bb%d0%b0%d1%81%d1%81%d0%b0?noredirect=1#comment1747251_1026888
 
 /*
@@ -73,11 +74,11 @@ public:
 	static CLogger* NewLC(RFile &aFile, TUint aLoggingLevels = ELevelAll);
 
 private:
-	void WriteL(const TDesC8 &aModule, const TDesC8 &aDes, TLoggingLevel aLoggingLevel = ELevelUnknown);
-	void WriteFormatL(const TDesC8 &aModule, TRefByValue<const TDesC8> aFmt, ...);
-	void WriteFormatListL(const TDesC8 &aModule, const TDesC8 &aFmt, VA_LIST aList, TLoggingLevel aLoggingLevel = ELevelUnknown);
+	void WriteL(const TDesC16 &aModule, const TDesC16 &aDes, TLoggingLevel aLoggingLevel = ELevelUnknown);
+	void WriteFormatL(const TDesC16 &aModule, TRefByValue<const TDesC16> aFmt, ...);
+	void WriteFormatListL(const TDesC16 &aModule, const TDesC16 &aFmt, VA_LIST aList, TBool anIsDes16, TLoggingLevel aLoggingLevel = ELevelUnknown);
 	//static void WriteEmptyLine();
-	void WriteToFileL(const TDesC8 &aDes);
+	void WriteToFileL(const TDesC16 &aDes);
 	
 private:
 	CLogger(RFile &aFile, TUint aLoggingLevels);
@@ -103,6 +104,7 @@ private:
 	static CLogger* iLogger;
 public:
 	static void SetLogger(CLogger* aLogger);
+	static void WriteFormat/*WriteLog*/(CLogger::TLoggingLevel aLoggingLevel, const TDesC8 &aModule, TRefByValue<const TDesC16> aFmt, ...);
 	static void WriteFormat/*WriteLog*/(CLogger::TLoggingLevel aLoggingLevel, const TDesC8 &aModule, TRefByValue<const TDesC8> aFmt, ...);
 	
 	friend class CLogger;
