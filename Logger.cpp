@@ -6,6 +6,7 @@
  */
 
 #include "Logger.h"
+#include <utf.h>
 
 #if LOGGING_ENABLED
 
@@ -182,6 +183,14 @@ void CLogger::WriteToFileL(const TDesC16 &aDes)
 			buff8.CreateL(writeBuf.Length());
 			buff8.CleanupClosePushL();
 			buff8.Copy(writeBuf);
+			}
+		break;
+		
+		case EUtf8:
+			{
+			buff8.CreateL(aDes.Size()); // Not length! Max utf8 string size.
+			buff8.CleanupClosePushL();
+			CnvUtfConverter::ConvertFromUnicodeToUtf8(buff8, aDes);
 			}
 		break;
 		

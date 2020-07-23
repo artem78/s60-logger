@@ -72,7 +72,8 @@ public:
 	enum TOutputEncoding
 		{
 		EASCII,
-		EUnicode // USC2 Little Endian (UTF-16)
+		EUnicode, // USC2 Little Endian (UTF-16)
+		EUtf8
 		};
 
 	~CLogger();
