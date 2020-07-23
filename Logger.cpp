@@ -15,8 +15,9 @@ _LIT16(KTab, "\t");
 
 /* CLogger */
 
-CLogger::CLogger(RFile &aFile, TUint aLoggingLevels)
-		: iLoggingLevels(aLoggingLevels)
+CLogger::CLogger(RFile &aFile, TUint aLoggingLevels, TOutputEncoding anOutputEncoding)
+		: iLoggingLevels(aLoggingLevels),
+		  iOutputEncoding(anOutputEncoding)
 	{
 	// Leave iFileBuf buffer size as default (4Kb)
 	iFileBuf.Attach(aFile, 0);
@@ -31,17 +32,17 @@ CLogger::~CLogger()
 		LoggerStatic::SetLogger(NULL);
 	}
 
-CLogger* CLogger::NewLC(RFile &aFile, TUint aLoggingLevels)
+CLogger* CLogger::NewLC(RFile &aFile, TUint aLoggingLevels, TOutputEncoding anOutputEncoding)
 	{
-	CLogger* self = new (ELeave) CLogger(aFile, aLoggingLevels);
+	CLogger* self = new (ELeave) CLogger(aFile, aLoggingLevels, anOutputEncoding);
 	CleanupStack::PushL(self);
 	self->ConstructL();
 	return self;
 	}
 
-CLogger* CLogger::NewL(RFile &aFile, TUint aLoggingLevels)
+CLogger* CLogger::NewL(RFile &aFile, TUint aLoggingLevels, TOutputEncoding anOutputEncoding)
 	{
-	CLogger* self = CLogger::NewLC(aFile, aLoggingLevels);
+	CLogger* self = CLogger::NewLC(aFile, aLoggingLevels, anOutputEncoding);
 	CleanupStack::Pop(); // self;
 	return self;
 	}
@@ -164,11 +165,29 @@ void CLogger::WriteToFileL(const TDesC16 &aDes)
 	
 	RBuf8 buff8;
 	TRequestStatus stat;
-	
-	buff8.CreateL(aDes.Length());
-	buff8.CleanupClosePushL();
-	buff8.Copy(aDes);
-	
+
+	switch (iOutputEncoding)
+		{
+		case EASCII:
+			{
+			buff8.CreateL(aDes.Length());
+			buff8.CleanupClosePushL();
+			buff8.Copy(aDes);
+			}
+		break;
+
+		case EUnicode:
+			{
+			TPtrC8 writeBuf((const TUint8*)aDes.Ptr(),aDes.Size());
+			buff8.CreateL(writeBuf.Length());
+			buff8.CleanupClosePushL();
+			buff8.Copy(writeBuf);
+			}
+		break;
+		
+		default:
+		break;
+		}
 	
 	iFileBuf.WriteL(buff8, stat);
 	User::WaitForRequest(stat);

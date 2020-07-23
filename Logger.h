@@ -68,10 +68,16 @@ public:
 		ELevelAll		= /*-1*/ ELevelUnknown | ELevelDebug |
 					ELevelInfo | ELevelWarning | ELevelError,		
 		};
+	
+	enum TOutputEncoding
+		{
+		EASCII,
+		EUnicode // USC2 Little Endian (UTF-16)
+		};
 
 	~CLogger();
-	static CLogger* NewL(RFile &aFile, TUint aLoggingLevels = ELevelAll);
-	static CLogger* NewLC(RFile &aFile, TUint aLoggingLevels = ELevelAll);
+	static CLogger* NewL(RFile &aFile, TUint aLoggingLevels = ELevelAll, TOutputEncoding anOutputEncoding = EASCII);
+	static CLogger* NewLC(RFile &aFile, TUint aLoggingLevels = ELevelAll, TOutputEncoding anOutputEncoding = EASCII);
 
 private:
 	void WriteL(const TDesC16 &aModule, const TDesC16 &aDes, TLoggingLevel aLoggingLevel = ELevelUnknown);
@@ -81,11 +87,12 @@ private:
 	void WriteToFileL(const TDesC16 &aDes);
 	
 private:
-	CLogger(RFile &aFile, TUint aLoggingLevels);
+	CLogger(RFile &aFile, TUint aLoggingLevels, TOutputEncoding anOutputEncoding);
 	void ConstructL();
 	
 	RFileBuf iFileBuf;
 	TUint iLoggingLevels;
+	TOutputEncoding iOutputEncoding;
 	
 	friend class LoggerStatic;
 	};
