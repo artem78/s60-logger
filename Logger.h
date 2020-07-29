@@ -77,8 +77,10 @@ public:
 		};
 
 	~CLogger();
-	static CLogger* NewL(RFile &aFile, TUint aLoggingLevels = ELevelAll, TOutputEncoding anOutputEncoding = EASCII);
-	static CLogger* NewLC(RFile &aFile, TUint aLoggingLevels = ELevelAll, TOutputEncoding anOutputEncoding = EASCII);
+	static CLogger* NewL(RFile &aFile, TUint aLoggingLevels = ELevelAll,
+			TOutputEncoding anOutputEncoding = EASCII, TBool anAutoFlush = EFalse);
+	static CLogger* NewLC(RFile &aFile, TUint aLoggingLevels = ELevelAll,
+			TOutputEncoding anOutputEncoding = EASCII, TBool anAutoFlush = EFalse);
 
 private:
 	void WriteL(const TDesC16 &aModule, const TDesC16 &aDes, TLoggingLevel aLoggingLevel = ELevelUnknown);
@@ -88,12 +90,14 @@ private:
 	void WriteToFileL(const TDesC16 &aDes);
 	
 private:
-	CLogger(RFile &aFile, TUint aLoggingLevels, TOutputEncoding anOutputEncoding);
+	CLogger(RFile &aFile, TUint aLoggingLevels, TOutputEncoding anOutputEncoding,
+			TBool anAutoFlush);
 	void ConstructL();
 	
 	RFileBuf iFileBuf;
 	TUint iLoggingLevels;
 	TOutputEncoding iOutputEncoding;
+	TBool iAutoFlush; // If set to ETrue, make flush after each line 
 	
 	friend class LoggerStatic;
 	};

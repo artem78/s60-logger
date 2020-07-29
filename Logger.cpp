@@ -16,9 +16,11 @@ _LIT16(KTab, "\t");
 
 /* CLogger */
 
-CLogger::CLogger(RFile &aFile, TUint aLoggingLevels, TOutputEncoding anOutputEncoding)
+CLogger::CLogger(RFile &aFile, TUint aLoggingLevels,
+		TOutputEncoding anOutputEncoding, TBool anAutoFlush)
 		: iLoggingLevels(aLoggingLevels),
-		  iOutputEncoding(anOutputEncoding)
+		  iOutputEncoding(anOutputEncoding),
+		  iAutoFlush(anAutoFlush)
 	{
 	// Leave iFileBuf buffer size as default (4Kb)
 	iFileBuf.Attach(aFile, 0);
@@ -33,17 +35,20 @@ CLogger::~CLogger()
 		LoggerStatic::SetLogger(NULL);
 	}
 
-CLogger* CLogger::NewLC(RFile &aFile, TUint aLoggingLevels, TOutputEncoding anOutputEncoding)
+CLogger* CLogger::NewLC(RFile &aFile, TUint aLoggingLevels,
+		TOutputEncoding anOutputEncoding, TBool anAutoFlush)
 	{
-	CLogger* self = new (ELeave) CLogger(aFile, aLoggingLevels, anOutputEncoding);
+	CLogger* self = new (ELeave) CLogger(aFile, aLoggingLevels, anOutputEncoding,
+			anAutoFlush);
 	CleanupStack::PushL(self);
 	self->ConstructL();
 	return self;
 	}
 
-CLogger* CLogger::NewL(RFile &aFile, TUint aLoggingLevels, TOutputEncoding anOutputEncoding)
+CLogger* CLogger::NewL(RFile &aFile, TUint aLoggingLevels,
+		TOutputEncoding anOutputEncoding, TBool anAutoFlush)
 	{
-	CLogger* self = CLogger::NewLC(aFile, aLoggingLevels, anOutputEncoding);
+	CLogger* self = CLogger::NewLC(aFile, aLoggingLevels, anOutputEncoding, anAutoFlush);
 	CleanupStack::Pop(); // self;
 	return self;
 	}
@@ -106,6 +111,9 @@ void CLogger::WriteL(const TDesC16 &aModule, const TDesC16 &aDes, TLoggingLevel 
 	// Print message
 	WriteToFileL(aDes);
 	WriteToFileL(KLineBreak);
+	
+	if (iAutoFlush)
+		iFileBuf.SynchL();
 	}
 
 void CLogger::WriteFormatL(const TDesC16 &aModule, TRefByValue<const TDesC16> aFmt, ...)
