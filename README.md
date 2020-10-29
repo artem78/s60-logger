@@ -1,5 +1,16 @@
 # Logging library for Symbian
 
+This module provides logging feature for Symbian OS. Main functions are listed below.
+
+## Features
+- Output to file
+- Logging levels: Debug, Information, Warning and Error; you can customize which ones to write to the file
+- Encodings: 8-bit, Unicode, UTF-8
+- Buffered output for increasing performance with frequent write operations
+- It\`s possible to enable/disable logging in compile time
+- Formatting (descriptors, ints, floats, etc...)
+- Writes where the message was sent from (function name)
+
 ## Usage example
 
 ```c++
@@ -40,6 +51,10 @@ c:\log.txt file:
 20:12:50.176	(Warning)	[LoggerDemo()]   This is warning message
 20:12:50.176	(Error)	[LoggerDemo()]   This is formatted error message with code: 404 (Not Found)
 ```
+
+<!--## Depending from libs
+ ... TODO
+-->
 
 ## Limitations
 * Max strings length (with formatting) - 4 Kb
