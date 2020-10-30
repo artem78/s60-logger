@@ -52,9 +52,12 @@ c:\log.txt file:
 20:12:50.176	(Error)	[LoggerDemo()]   This is formatted error message with code: 404 (Not Found)
 ```
 
-<!--## Depending from libs
- ... TODO
--->
+## Dependings from libs
+Don\`t forget to add these libs in your project MMP-file:
+* efsrv.lib
+* estor.lib
+* charconv.lib
+
 
 ## Limitations
 * Max strings length (with formatting) - 4 Kb
