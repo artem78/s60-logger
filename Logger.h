@@ -39,6 +39,7 @@
 // ToDo: Write 16bit descriptors
 // ToDo: Allow to create logger by filename and file server
 // ToDo: Add formatting of date and time in message (ex.: %date, %time, %datetime)
+// ToDo: Allow to safe using of logger with threads (add mutex)
 
 #if LOGGING_ENABLED
 #define LOG(aMsg, anArgs...)		LoggerStatic::WriteFormat(CLogger::ELevelUnknown,	_L8(__PRETTY_FUNCTION__), aMsg, ##anArgs);
